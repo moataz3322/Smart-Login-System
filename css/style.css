@@ -15,7 +15,7 @@ body {
   font-family: sans-serif;
   color: white;
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6)),
-    url(/bg/nature-landscape-with-black-sand-beach.jpg);
+    url(../bg/nature-landscape-with-black-sand-beach.jpg);
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
