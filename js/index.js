@@ -1,4 +1,4 @@
-//todo HOMEfs
+//todo HOME
 let userHome = document.getElementById("HomeUserName");
 let homePage = document.getElementById("home");
 let logOutBtn = document.getElementById("logOut");
@@ -71,6 +71,7 @@ function login() {
 
   loginCheckMssg.classList.remove("d-none");
 
+  setTimeout(() => loginCheckMssg.classList.add("d-none"), 1500);
   return false;
 }
 
@@ -97,9 +98,13 @@ function addUser() {
 
     sucsMssg.classList.remove("d-none");
 
+    signUpBtn.style.left = "0px";
+    formSuccess = true;
+
     clearForm();
   } else {
     sucsMssg.classList.add("d-none");
+    formSuccess = false;
   }
 }
 
@@ -118,6 +123,9 @@ function clearForm() {
   userEmail.classList.remove("is-invalid");
   passValid.classList.add("d-none");
   invalidMssg.classList.add("d-none");
+  setTimeout(() => {
+    sucsMssg.classList.add("d-none");
+  }, 1000);
 }
 
 upLogin.addEventListener("click", function () {
@@ -143,7 +151,7 @@ function nameRegex() {
 }
 
 function emailRegex() {
-  let emailRegex = /^[\w.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   let email = userEmail.value;
 
@@ -181,20 +189,20 @@ function passRegex() {
 userName.addEventListener("input", function () {
   nameRegex();
   validateAll();
-  checkFormValidityAndResetBtn();
+  // checkFormValidityAndResetBtn();
 });
 
 userPass.addEventListener("input", function () {
   passRegex();
   validateAll();
-  checkFormValidityAndResetBtn();
+  // checkFormValidityAndResetBtn();
 });
 
 userEmail.addEventListener("input", function () {
   emailRegex();
   emailExistsCheck();
   validateAll();
-  checkFormValidityAndResetBtn();
+  // checkFormValidityAndResetBtn();
 });
 
 //* FOR INVALID MSSG
@@ -202,8 +210,11 @@ userEmail.addEventListener("input", function () {
 function validateAll() {
   if (nameRegex() && emailRegex() && passRegex()) {
     invalidMssg.classList.add("d-none");
+    signUpBtn.style.left = "0px";
+    formSuccess = true;
   } else {
     invalidMssg.classList.remove("d-none");
+    formSuccess = false;
   }
 }
 
@@ -234,23 +245,71 @@ function emailExistsCheck() {
 
 //* FunnyBtn :)
 
-function checkFormValidityAndResetBtn() {
-  if (nameRegex() && emailRegex() && passRegex() && !emailExistsCheck()) {
-    signUpBtn.style.left = "0px";
+signUpBtn.addEventListener("click", function () {
+  if (formSuccess) return;
+
+  interactionStarted = true;
+
+  if (!isFormValid()) {
+    moveButton();
   }
-}
-let movedRight = false;
+});
+
 signUpBtn.addEventListener("mouseenter", function () {
-  if (!(nameRegex() && emailRegex() && passRegex() && !emailExistsCheck())) {
-    if (!movedRight) {
-      this.style.left = "250px";
-      movedRight = true;
-    } else {
-      this.style.left = "-250px";
-      movedRight = false;
-    }
+  if (formSuccess) return;
+
+  if (interactionStarted && !isFormValid()) {
+    moveButton();
   } else {
     this.style.left = "0px";
     movedRight = false;
   }
 });
+
+function moveButton() {
+  const parentWidth = signUpBtn.parentElement.offsetWidth;
+  const buttonWidth = signUpBtn.offsetWidth;
+
+  const maxMove = (parentWidth - buttonWidth) / 2;
+  const moveDistance = Math.min(maxMove, 250);
+
+  if (!movedRight) {
+    signUpBtn.style.left = moveDistance + "px";
+    movedRight = true;
+  } else {
+    signUpBtn.style.left = -moveDistance + "px";
+    movedRight = false;
+  }
+}
+
+function isFormValid() {
+  return nameRegex() && emailRegex() && passRegex() && !emailExistsCheck();
+}
+
+function addUser() {
+  let userList = JSON.parse(localStorage.getItem("userInfo")) || [];
+
+  if (isFormValid()) {
+    let user = {
+      name: userName.value.trim(),
+      email: userEmail.value.trim(),
+      pass: userPass.value.trim(),
+    };
+
+    userList.push(user);
+    localStorage.setItem("userInfo", JSON.stringify(userList));
+
+    sucsMssg.classList.remove("d-none");
+    clearForm();
+
+    signUpBtn.style.left = "0px";
+    formSuccess = true;
+  } else {
+    sucsMssg.classList.add("d-none");
+    formSuccess = false;
+  }
+}
+
+let movedRight = false;
+let interactionStarted = false;
+let formSuccess = false;
